@@ -86,6 +86,13 @@ Error in vecseq(f__, len__, if (allow.cartesian || notjoin || !anyDuplicated(f__
   Join results in 19648 rows; more than 11143 = nrow(x)+nrow(i). Check for duplicate key values in i each of which join to the same group in x over and over again. If that's ok, try by=.EACHI to run j for each group to avoid the large allocation. If you are sure you wish to proceed, rerun with allow.cartesian=TRUE. Otherwise, please search for this error message in the FAQ, Wiki, Stack Overflow and data.table issue tracker for advice.
 ```
 
+## Now with a big dataset
+
+this dataset is available at [this repo](https://github.com/derek-corcoran-barrios/DataTableJoinQuestion)
+
+But I will add the code so that I read it from there:
+
+
 
 ## Session info
 
