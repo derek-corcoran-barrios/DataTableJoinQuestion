@@ -10,9 +10,11 @@ output:
     std_out_err: TRUE
 knit: reprex::reprex_render
 ---
+# Summary:
 
+I am encountering a perplexing issue with a data.table join operation in R, where I intend to combine information from two datasets based on specific habitat and species criteria. The join is expected to yield additional rows, but on a large dataset, it results in a "Join results in more rows" error. To illustrate the problem, I've provided a minimal example with sample datasets. Initially, a smaller dataset demonstrates successful execution of the join, but the same operation on a larger dataset triggers an error. I've included the relevant code snippets, sample data, and error messages. Seeking guidance on resolving this issue, particularly when dealing with duplicate key values and large datasets, I am reaching out for insights and potential solutions.
 
-
+# This is a small dataset, here it works
 ```{r}
 library(data.table)
 ```
@@ -78,6 +80,7 @@ as can be seen here
 knitr::kable(Final_Result)
 ```
 
+# Error on large dataset
 
 However on a larget dataset I get this error:
 
@@ -92,7 +95,35 @@ this dataset is available at [this repo](https://github.com/derek-corcoran-barri
 
 But I will add the code so that I read it from there:
 
+```{r}
+result <- data.table::fread("https://raw.githubusercontent.com/derek-corcoran-barrios/DataTableJoinQuestion/master/result.csv")
+```
 
+you can see the structure here
+
+```{r}
+str(result)
+```
+
+and now the feasible landuses
+
+```{r}
+Feasible_Landuses <- data.table::fread("https://raw.githubusercontent.com/derek-corcoran-barrios/DataTableJoinQuestion/master/Feasible_Landuses.csv")
+```
+
+Again we check the structure
+
+```{r}
+str(Feasible_Landuses)
+```
+
+and now we finally check the join:
+
+```{r}
+Final_Result <- result[Feasible_Landuses, on = .(Habitat, species), nomatch = 0]
+```
+
+Why this one gets an error and this first one does not?
 
 ## Session info
 
