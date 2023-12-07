@@ -1,0 +1,116 @@
+```{r reprex-options, include = FALSE}
+options(
+  keep.source = TRUE,
+  rlang_backtrace_on_error_report = "full",
+  crayon.enabled = FALSE,
+  reprex.current_venue = "gh"
+)
+```
+
+```{r, results = 'asis', echo = FALSE, include = file.exists('.Rprofile'), eval = file.exists('.Rprofile')}
+cat(sprintf("*Local `.Rprofile` detected at `%s`*", normalizePath(".Rprofile")))
+```
+
+---
+output:
+  reprex::reprex_document:
+    venue: "gh"
+    advertise: FALSE
+    session_info: TRUE
+    style: TRUE
+    comment: "#;-)"
+    tidyverse_quiet: FALSE
+    std_out_err: TRUE
+knit: reprex::reprex_render
+---
+
+
+
+```{r}
+library(data.table)
+```
+
+I have a problem with a join that should produce extra rows in data table, I have a subresult which is this one:
+
+```{r generateSubresult}
+subresult <- structure(list(cell = c(1447386L, 1447386L, 1447387L), species = c("Abies nordmanniana", 
+"Abies nordmanniana", "Abies nordmanniana"), Habitat = c("WetRich", "DryRich", "DryRich")), class = c("data.table", 
+"data.frame"), row.names = c(NA, -3L))
+```
+
+
+this looks like this:
+
+```{r, echo = F}
+knitr::kable(subresult)
+```
+
+Here we have a species that can inhabit in 2 different habitats in one cell, and 1 in another, all of which are available in this cell, now those habitats can become different landuses, so we have this other dataset
+
+```{r}
+Feasible_Landuses <- structure(list(species = c("Abies nordmanniana", "Abies nordmanniana", 
+"Abies nordmanniana", "Abies nordmanniana", "Abies nordmanniana", 
+"Abies nordmanniana", "Abies nordmanniana"), Landuse = c("ForestDryRich", 
+"ForestDryPoor", "ForestWetRich", "ForestWetPoor", "OpenDryRich", 
+"OpenDryPoor", "OpenWetPoor"), Habitat = c("DryRich", "DryPoor", 
+"WetRich", "WetPoor", "DryRich", "DryPoor", "WetPoor")), row.names = c(NA, 
+-7L), class = c("data.table", "data.frame"), sorted = "species")
+```
+
+which can be seen here
+
+```{r, echo = F}
+knitr::kable(Feasible_Landuses)
+```
+
+Now the goal would be to make a join resulting in this:
+
+```{r}
+Final_Result <- structure(list(cell = c(1447386L, 1447386L, 1447386L, 1447387L, 1447387L), species = c("Abies nordmanniana", "Abies nordmanniana", 
+"Abies nordmanniana", "Abies nordmanniana", 
+"Abies nordmanniana"), Landuse = c("ForestDryRich", "ForestWetRich", 
+"OpenDryRich", "ForestDryRich","OpenDryRich"), Habitat = c("DryRich", "WetRich", "DryRich", "DryRich", "DryRich")), row.names = c(NA, 
+-5L), class = c("data.table", "data.frame"))
+```
+
+Which should look like this:
+
+```{r, echo = F}
+knitr::kable(Final_Result)
+```
+
+When I try this this works fine
+
+```{r}
+Final_Result <- subresult[Feasible_Landuses, on = .(Habitat, species), nomatch = 0]
+```
+
+as can be seen here
+
+```{r, echo=FALSE}
+knitr::kable(Final_Result)
+```
+
+
+However on a larget dataset I get this error:
+
+```{r, eval = F}
+Error in vecseq(f__, len__, if (allow.cartesian || notjoin || !anyDuplicated(f__,  : 
+  Join results in 19648 rows; more than 11143 = nrow(x)+nrow(i). Check for duplicate key values in i each of which join to the same group in x over and over again. If that's ok, try by=.EACHI to run j for each group to avoid the large allocation. If you are sure you wish to proceed, rerun with allow.cartesian=TRUE. Otherwise, please search for this error message in the FAQ, Wiki, Stack Overflow and data.table issue tracker for advice.
+```
+
+
+## Session info
+
+
+<details style="margin-bottom:10px;">
+<summary>Standard output and standard error</summary>
+`/home/au687614/Documents/DataTableJoinQuestion/README_reprex_std_out_err.txt`
+</details>
+
+<details style="margin-bottom:10px;">
+<summary>Session info</summary>
+```{r }
+sessioninfo::session_info()
+```
+</details>
